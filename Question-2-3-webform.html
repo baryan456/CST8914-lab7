@@ -3,134 +3,250 @@
     <head>
         <title>Form validation with messages on top: Code example - Accessibility Developer Guide example</title>
         <meta charset="utf-8">
-        <style>.control, fieldset {
-      margin: 6px 0;
+    <style>.control, fieldset {
+        margin: 6px 0;
     }
-    
+
     label {
-      display: inline-block;
-      width: 120px;
-      vertical-align: top;
+        display: inline-block;
+        width: 120px;
+        vertical-align: top;
     }
-    
+
     input + label {
-      width: auto;
+        width: auto;
     }
-    
+
     .error, .required {
-      color: red;
+        color: red;
     }
-    
+
     fieldset ul {
-      margin: 0;
-    }</style>
+        margin: 0;
+    }
+
+    /* Question 3: Style the error summary. */
+    .errors {
+        border: 2px solid red;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .errors h2 {
+        color: red;
+    }
+
+    /* Display individual field errors clearly. */
+    .field-error {
+        display: block;
+        color: red;
+        margin: 5px 0;
+    }
+
+    /* Highlight fields that contain errors. */
+    [aria-invalid="true"] {
+        outline: 2px solid red;
+    }
+</style>
     </head>
     <body>
         <h1>Feedback form</h1>
-    <form>
-        <div class="control">
-          <label>Full name <span class="required">*</span></label><input id="name" name="name" type="text" />
-        </div>
-        <div class="control">
-          <label>Biography</label><textarea id="biography" name="biography" type="text"></textarea>
-          <span>Include examples on your skills in JavaScript.</span>
-        </div>
+       <!--  Q2 Issue 3:I added visible instructions explaining the asterisk and marked the required fields so users know which information they must provide. -->
+<p id="required-instructions">
+    Fields marked with an asterisk (*) are required.
+</p>
+    <form id="feedback-form" novalidate>
+       <!--Q2 Issue 1:I connected each label to its input so screen-reader users can identify the purpose of each form control. -->
+<div class="control">
+    <label for="name">Full name <span class="required">*</span></label>
+    <input id="name" name="name" type="text" required
+           aria-describedby="required-instructions">
+</div>
+<!-- Q2 Issue 4: I connected the instructions to the Biography field using aria-describedby so screen-reader users can receive the additional guidance. -->
+<div class="control">
+    <label for="biography">Biography <span class="required">*</span></label>
+    <textarea id="biography" name="biography"
+              aria-describedby="biography-instructions required-instructions"
+              required></textarea>
+    <span id="biography-instructions">
+        Include examples of your skills in JavaScript.
+    </span>
+</div>
+          <!--Q2 Issue 2:I grouped the radio buttons using a fieldset and legend so screen-reader users can understand that both options belong to the Gender question. -->
+<fieldset class="control">
+    <legend>Gender <span class="required">*</span></legend>
+
+    <input id="gender_male" name="gender" type="radio"
+           value="male" required>
+    <label for="gender_male">Male</label>
+
+    <input id="gender_female" name="gender" type="radio"
+           value="female">
+    <label for="gender_female">Female</label>
+</fieldset>
         
-          <div>Gender</div>
-          <div class="control">
-            <input id="gender_male" name="gender" type="radio" value="male" /><label>Male</label>
-          </div>
-          <div class="control">
-            <input id="gender_female" name="gender" type="radio" value="female" /><label>Female</label>
-          </div>
-        
         <div class="control">
-          <input id="accept_agbs" name="accept_agbs" type="checkbox" value="1" /><label>I accept the terms and conditions</label>
-        </div>
+    <input id="accept_agbs" name="accept_agbs"
+           type="checkbox" value="1" required>
+    <label for="accept_agbs">
+        I accept the terms and conditions
+        <span class="required">*</span>
+    </label>
+</div>
         <div class="control">
           <input name="validate" type="hidden" value="1" /><input type="submit" value="Register" />
         </div>
       </form>
       
           <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-          <script>"use strict";
-      
-      ;
-      (function () {
-        var validateInput;
-      
-        $.urlParam = function (name) {
-          var results;
-          results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
-      
-          if (results === null) {
-            return null;
-          } else {
-            return decodeURI(results[1]) || null;
-          }
-        };
-      
-        validateInput = function validateInput(input, message) {
-          var $elementToDescribe, $error, $errorContainer, $fieldset, $input, $referencedElement, value;
-          $input = $('[name="' + input + '"]');
-      
-          if ((value = $.urlParam(input)) === null) {
-            if ($('fieldset.errors').length === 0) {
-              $('form').prepend('<fieldset class="errors"><legend>Errors</legend><ul></ul></fieldset>');
-            }
-      
-            $referencedElement = null;
-            $elementToDescribe = null;
-            $errorContainer = $('fieldset.errors ul');
-      
-            if ($input.is(':radio')) {
-              $fieldset = $input.closest('fieldset');
-              $elementToDescribe = $fieldset;
-              $referencedElement = $input.filter(':first');
-            } else {
-              $elementToDescribe = $input;
-              $referencedElement = $input;
-            }
-      // R.G. hint: fix next line ;)
-            $error = $('<a>' + message + '</a>');
-            $error.click(function (e) {
-              // If we rely on the link's href pointing to the input's ID, it doesn't trigger forms mode in screen readers
-              $referencedElement.focus();
-              return e.preventDefault();
-            });
-            $elementToDescribe.attr('aria-describedby', input + '_description');
-            $errorContainer.append('<li>').find('li:last').append($error);
-      
-            if ($(':not(form):focus').length === 0) {
-              // See https://stackoverflow.com/questions/46134247/jquery-setting-focus-doesnt-work-in-ie11/
-            
-            }
-          } else {
-            if ($input.is(':checkbox')) {
-              $input.attr('checked', true);
-            }
-      
-            if ($input.is(':radio')) {
-              return $input.filter('[value="' + value + '"]').attr('checked', true);
-            } else {
-              return $input.val(value);
-            }
-          }
-        };
-      
-        $(document).ready(function () {
-          if ($.urlParam('validate')) {
-            validateInput('name', 'Please enter your name!');
-            validateInput('biography', 'Please tell us something about your history!');
-            validateInput('gender', 'Please tell us your gender!');
-            validateInput('accept_agbs', 'You must accept our terms and conditions!');
-      
-            if ($('.error').length === 0) {
-              return alert('All inputs are valid.');
-            }
-          }
+          
+            <script>
+"use strict";
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("feedback-form");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Remove the previous error summary and field messages.
+        const oldSummary = document.getElementById("error-summary");
+
+        if (oldSummary) {
+            oldSummary.remove();
+        }
+
+        form.querySelectorAll(".field-error").forEach(function (error) {
+            error.remove();
         });
-      }).call(void 0);</script>
+
+        form.querySelectorAll("[aria-invalid='true']").forEach(function (field) {
+            field.removeAttribute("aria-invalid");
+            field.removeAttribute("aria-describedby");
+        });
+
+        const name = document.getElementById("name");
+        const biography =document.getElementById("biography");
+        const male = document.getElementById("gender_male");
+        const female = document.getElementById("gender_female");
+        const terms = document.getElementById("accept_agbs");
+
+        const errors = [];
+
+        // Check the 
+        if (name.value.trim() === "") {
+            errors.push({
+                field: name,
+                message: "Please enter your name.",
+                id: "name-error"
+            });
+        }
+
+        // Check the Biography field.
+        if (biography.value.trim() === "") {
+            errors.push({
+                field: biography,
+                message: "Please tell us something about your history.",
+                id: "biography-error"
+            });
+        }
+
+        // Check whether a Gender option is selected.
+        if (!male.checked && !female.checked) {
+            errors.push({
+                field: male,
+                message: "Please select a gender.",
+                id: "gender-error",
+                group: true
+            });
+        }
+
+        // Check acceptance of the terms and conditions.
+        if (!terms.checked) {
+            errors.push({
+                field: terms,
+                message: "You must accept our terms and conditions.",
+                id: "terms-error"
+            });
+        }
+
+        if (errors.length > 0) {
+            // Create an accessible error summary.
+            const summary = document.createElement("div");
+            summary.id = "error-summary";
+            summary.className = "errors";
+            summary.tabIndex = -1;
+            summary.setAttribute("role", "alert");
+            summary.setAttribute("aria-labelledby", "error-heading");
+
+            const heading = document.createElement("h2");
+            heading.id = "error-heading";
+            heading.textContent = "Please correct the following errors:";
+
+            const list = document.createElement("ul");
+
+            summary.appendChild(heading);
+            summary.appendChild(list);
+
+            errors.forEach(function (error) {
+                const item = document.createElement("li");
+                const link = document.createElement("a");
+
+                // Q3 Issue 4: I linked each error message to the corresponding form field so users can navigate directly to the field that needs attention.
+                link.href = "#" + error.field.id;
+                link.textContent = error.message;
+
+                // Move focus to the field when its error link is activated.
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    error.field.focus();
+                });
+
+                item.appendChild(link);
+                list.appendChild(item);
+
+                // Mark the invalid field for screen readers.
+                if (error.group) {
+                    const fieldset = error.field.closest("fieldset");
+
+                    fieldset.setAttribute("aria-invalid", "true");
+                    fieldset.setAttribute("aria-describedby", error.id);
+                } else {
+                    error.field.setAttribute("aria-invalid", "true");
+
+                    const previousDescription =
+                        error.field.getAttribute("aria-describedby") || "";
+
+                    error.field.setAttribute(
+                        "aria-describedby",
+                        (previousDescription + " " + error.id).trim()
+                    );
+                }
+
+                // Display an error message next to the affected field.
+                const errorText = document.createElement("span");
+                errorText.id = error.id;
+                errorText.className = "field-error error";
+                errorText.textContent = error.message;
+
+                if (error.group) {
+                    error.field.closest("fieldset").appendChild(errorText);
+                } else {
+                    error.field.insertAdjacentElement("afterend", errorText);
+                }
+            });
+
+            form.parentNode.insertBefore(summary, form);
+            // Q3 Issue 3: I moved keyboard focus to the error summary so users are informed of validation errors immediately after submitting the form.
+            summary.focus();
+
+        } else {
+            // Q3 Issue 1: I validated all required fields and displayed the success alert only when every validation check passed.
+            alert("All inputs are valid.");
+        }
+    });
+});
+</script>
                 
-        </body>
+      </body>
       </html>
