@@ -24,7 +24,7 @@ body {
 a{
   color: #006
 }
-/* Add a visible indicator when an interactive element receives keyboard focus. */
+/* Issue 1:I added a visible outline so keyboard users can easily see which link, button, or input is currently selected. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
@@ -206,7 +206,7 @@ article p {
     <div class="container">
       <h1 class="logo">The Funion</h1>
       
-      <!-- Maybe this could be improved with aria-activedescendant later? -->
+      <!--issue 2: I added an accessible label to help screen-reader users identify the main navigation section.-->
            <nav class="menu" aria-label="Main navigation">
   <a href="index.html">Home</a>
   <a href="politics.html">Politics</a>
@@ -240,10 +240,12 @@ article p {
     <div class="side-by-side">
       <div class="column">
         <div class="tier-header">
-          <h2>In the news</h2>
+          <!-- Issue 3:I removed tabindex="0" from the heading because users should not need to tab through a heading that is not interactive.-->
+          h2>In the news</h2>
         </div>
         <article>
           <h3 class="headline">Bee wonders if maybe everyone else is a drone and he's the only one who has it "figured out."</h3>
+          <!-- Issue 4:I removed the positive tabindex value so links follow the normal keyboard navigation order. -->
           <p><a href="#"><b>Read More</b></a></p>
           <img src="https://github.com/udacity/ud891/blob/gh-pages/lesson2-focus/02-dom-order/images/bee.jpg?raw=true" alt="A bee on top of a flower" />
         </article>
@@ -289,13 +291,15 @@ article p {
     </div>
     
   </main>
-
+<!--issue 5:I moved the newsletter section after the main content in the HTML so keyboard users can navigate through the page in a logical order instead of jumping to the email field too early.-->
 <div class="newsletter">
   <div class="container">
+    <!-- Issue 6: I removed the function that opened a new window when the button received focus because it could confuse users. -->
     <form>
       <h3>Like the Funion? Consider joining our newsletter!</h3>
 
       <label for="newsletter-email">Email address</label>
+      <!-- Issue 7:I added a label to the email input so users can understand what information they need to enter. -->
       <input
         type="email"
         id="newsletter-email"
